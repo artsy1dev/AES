@@ -1,0 +1,3 @@
+C:\Users\Adhena\source\repos\AES\AES\obj\Debug\AES.njsproj.AssemblyReference.cache
+C:\Users\Adhena\source\repos\AES\AES\obj\Debug\AES.njsproj.CoreCompileInputs.cache
+C:\Users\Adhena\source\repos\AES\AES\bin\Microsoft.NodejsTools.WebRole.dll

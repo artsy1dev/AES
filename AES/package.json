@@ -1,0 +1,16 @@
+{
+  "name": "AES",
+  "version": "0.0.1",
+  "description": "Ainara Event System",
+  "main": "server.ts",
+  "author": {
+    "name": "Ainara"
+  },
+  "dependencies": {
+    "bondage-club-mod-sdk": "^1.1.0",
+    "esbuild": "^0.19.5"
+  },
+  "scripts": {
+    "build": "node esbuild.config.js"
+  }
+}
