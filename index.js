@@ -8,13 +8,26 @@ const modApi = bcModSDK.registerMod({
 	repository: 'https://github.com/Jomshir98/bondage-club-mod-sdk',
 });
 
-// Example: Add original text to the end of any garble text
-// For more details see `SpeechGarble` function in BC code
-modApi.hookFunction('SpeechGarble', 4, (args, next) => {
-	// Copy original, which is second argument
-	const originalText = args[1];
-	// Call the original function, saving result
-	const garbledText = next(args);
-	// Return modified result by adding original text after the garbled text
-	return garbledText + ' <> ' + originalText;
-});
+
+function initWait() {
+	console.debug("BCX: Init wait");
+	/*
+	if (CurrentScreen == null || CurrentScreen === "Login") {
+		hookFunction("LoginResponse", 0, (args, next) => {
+			console.debug("BCX: Init LoginResponse caught", args);
+			next(args);
+			const response = args[0];
+			if (isObject(response) && typeof response.Name === "string" && typeof response.AccountName === "string") {
+				loginInit(args[0]);
+			}
+		});
+		InfoBeep(`BCX Ready!`);
+		console.log(`BCX Ready!`);
+	} else {
+		console.debug("BCX: Already logged in, init");
+		init();
+	}
+	*/
+}
+
+initWait()
