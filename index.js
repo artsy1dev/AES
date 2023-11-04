@@ -10,7 +10,7 @@ const modApi = bcModSDK.registerMod({
 
 
 function initWait() {
-	console.debug("BCX: Init wait");
+	console.debug("AES: Init wait");
 	/*
 	if (CurrentScreen == null || CurrentScreen === "Login") {
 		hookFunction("LoginResponse", 0, (args, next) => {
