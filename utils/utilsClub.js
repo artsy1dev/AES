@@ -19,13 +19,13 @@ export function ChatRoomActionMessage(msg, target = null, dictionary = []) {
 	});
 }
 
-export function ChatRoomSendLocal(msg, timeout, sender) {
+export function ChatRoomSendLocal(msg, background = "#6e6eff54", timeout, sender) {
 	// Adds the message and scrolls down unless the user has scrolled up
 	const div = document.createElement("div");
 	div.setAttribute("class", "ChatMessage ChatMessageLocalMessage");
 	div.setAttribute("data-time", ChatRoomCurrentTime());
 	div.setAttribute("data-sender", `${sender ?? Player.MemberNumber ?? 0}`);
-	div.style.background = "#6e6eff54";
+	div.style.background = background;
 	div.style.margin = "0.15em 0";
 
 	if (typeof msg === "string")
@@ -46,4 +46,10 @@ export function ChatRoomSendLocal(msg, timeout, sender) {
 		return div;
 	}
 	return null;
+}
+
+export function UpdateCharacters() {
+	for (var c in ChatRoomCharacter) {
+        ChatRoomCharacterUpdate(c);
+    }
 }

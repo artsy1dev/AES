@@ -4,6 +4,6 @@ esbuild.build({
     entryPoints: ['index.js'], // Ruta al punto de entrada de tu addon
     bundle: true,
     platform: "browser",
-    outfile: './dist/AES.js', // Ruta donde se generará el archivo de salida
-    minify: true, // Minificar el código
+    outfile: '../ainaradev7.github.io/AES/AES.js', // Ruta donde se generarï¿½ el archivo de salida
+    minify: true, // Minificar el cï¿½digo
 }).catch(() => process.exit(1));

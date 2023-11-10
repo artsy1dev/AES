@@ -1,10 +1,12 @@
 import { wearBind, breakRandomClothes } from "../utils/utilsCharacter";
 import { getRandomInt } from "../utils/utils";
-import { ChatRoomSendLocal, ChatRoomActionMessage } from "../utils/utilsClub";
+import { ChatRoomSendLocal, UpdateCharacters } from "../utils/utilsClub";
+import { sendHiddenMessage } from "../modules/messaging";
 
 let eventInterval;
-let level = 0;
+let eventLevel = 0;
 const greenColor = "#56AB56";
+const stepsPerSecond = 3;
 
 const clothingBreakPrompts = [
     "The relentless vines tore through my clothing as if they were ravenous for flesh.",
@@ -27,6 +29,9 @@ var playerBinds = {
     mouth3: 0,
     neck: 0,
     arms: 0,
+    pelvis: 0,
+    torso: 0,
+    torso2: 0,
     legs: 0,
     feet: 0,
     boots: 0,
@@ -35,9 +40,12 @@ var playerBinds = {
 export function initEvent() {
     console.log("AES: A plant invasion has started");
     ChatRoomSendLocal("A plant invasion has started");
+    sendHiddenMessage("PlantEvent", "test", Player);
+    sendHiddenMessage("PlantEvent", "test", Player);
+    sendHiddenMessage("PlantEvent", "test", Player);
     eventInterval = setInterval(function () {
         stepEvent();
-    }, 1*1000);
+    }, stepsPerSecond*1000);
 }
 
 function stopEvent() {
@@ -47,6 +55,7 @@ function stopEvent() {
     for (var bind in playerBinds) {
         playerBinds[bind] = 0;
     }
+    sendHiddenMessage("PlantEvent", "end", Player);
 }
 
 function stepEvent() {
@@ -55,18 +64,45 @@ function stepEvent() {
     for (var bind in playerBinds) {
         totalSum += playerBinds[bind];
     }
-    var eventInt = getRandomInt(51) + level + totalSum;
-    var playerInt = getRandomInt(101);
+    eventLevel++;
+    let eventInt = getRandomInt(51) + eventLevel * 5 + totalSum;
+      ChatRoomSendLocalAction("Some vines are approaching to you, do you want to fight back?", "#6e6eff54", null,
+        () => {
+            eventMove(eventInt, getRandomInt(101));
+        },
+        () => {
+          // Acción de "Rendirse"
+            eventMove(eventInt, 0);
+            console.log("Rendirse");
+        },
+        stepsPerSecond*1000 // Eliminar automáticamente después de 5 segundos
+      );
+      sendHiddenMessage("PlantEvent", "test", Player);
+}
+
+function eventMove(eventInt, playerInt) {
+    var actionString = "You fought against the plants: \n " + "You: " + playerInt + " - Vines: " + eventInt;
     if (eventInt > playerInt) {
-        process();
-        level++;
-        console.log("[AES] level up!");
+        var eventActionInt = getRandomInt(2);
+        if (eventActionInt == 0 && selectRandomBindForPlayer() != null || eventActionInt == 1  && selectRandomBindForPlayer() != null && CharacterIsNaked(Player)) {
+            actionString += "\n Vines are looking to restrain your body."
+            ChatRoomSendLocal(actionString, "#FFF2CC");
+            process();
+        } else if (eventActionInt == 1 && !CharacterIsNaked(Player) || eventActionInt == 0 && !CharacterIsNaked(Player) && selectRandomBindForPlayer() == null) {
+            actionString += "\n Vines are tearing down your clothing."
+            ChatRoomSendLocal(actionString, "#FFF2CC");
+            breakClothesForPlayer();
+        } else {
+            actionString += "\n Vines stopped moving as they got you fully bound.";
+            ChatRoomSendLocal(actionString, "#FFF2CC");
+            stopEvent();
+        }
+        eventLevel = 0;
+    } else {
+        ChatRoomSendLocal(actionString, "#FFF2CC");
     }
-    var eventInt = getRandomInt(51) + level + totalSum;
-    var playerInt = getRandomInt(101);
-    if (eventInt > playerInt && !CharacterIsNaked(Player)) {
-        breakClothesForPlayer();
-    }
+    console.log("[AES] eventLevel up! - " + eventLevel);
+    UpdateCharacters();
 }
 
 function process() {
@@ -97,6 +133,18 @@ function process() {
             wearBind(Player, "HempRope", "ItemArms", greenColor, 1);
             ChatRoomSendLocal("The vines slithered up your arms, coiling and constricting as they entangled you.");
             break;
+        case 'torso':
+            wearBind(Player, "HempRopeHarness", "ItemTorso", greenColor, 1);
+            ChatRoomSendLocal("The vines slithered up your arms, coiling and constricting as they entangled you."); // TODO
+            break;
+        case 'torso2':
+            wearBind(Player, "HempRopeHarness", "ItemTorso2", greenColor, 1);
+            ChatRoomSendLocal("The vines slithered up your arms, coiling and constricting as they entangled you."); // TODO
+            break;
+        case 'pelvis':
+            wearBind(Player, "HempRope", "ItemPelvis", greenColor, 1);
+            ChatRoomSendLocal("The vines slithered up your arms, coiling and constricting as they entangled you."); // TODO
+            break;
         case 'legs':
             wearBind(Player, "HempRope", "ItemLegs", greenColor, 1);
             ChatRoomSendLocal("The plant's sinuous tendrils coiled around your thighs, slowly constricting and pulling you deeper into their verdant embrace.");
@@ -112,63 +160,6 @@ function process() {
         default:
             break;
     }
-    /*
-    switch (level) {
-        case 0:
-            break;
-        case 1:
-            wearBind(Player, "HempRope", "ItemFeet", greenColor, 1);
-            ChatRoomSendLocal("The plant wraps around your legs, twisting and tightening its grip.");
-            break;
-        case 2:
-            wearBind(Player, "HempRope", "ItemArms", greenColor, 1);
-            wearBind(Player, "RopeBlindfold", "ItemHead", greenColor, 1);
-            wearBind(Player, "HempRope", "ItemHands", greenColor, 1);
-            wearBind(Player, "HempRope", "ToeTie", greenColor, 1);
-            wearBind(Player, "HempRope", "ItemNeck", greenColor, 1);
-            wearBind(Player, "HempRope", "ItemPelvis", greenColor, 1);
-            wearBind(Player, "HempRope", "ItemMouth", greenColor, 1);
-            wearBind(Player, "ToeTie", "ItemBoots", greenColor, 1);
-            ChatRoomSendLocal("The vines slithered up your arms, coiling and constricting as they entangled you.");
-            break;
-        case 3:
-            wearBind(Player, "HempRope", "ItemLegs", greenColor, 1);
-            ChatRoomSendLocal("The plant's sinuous tendrils coiled around your thighs, slowly constricting and pulling you deeper into their verdant embrace.");
-            break;
-        default:
-            break;
-    }
-    if (level > 10) {
-        let clothesString = getRandomInt(5);
-        switch (clothesString) {
-            case 0:
-                ChatRoomSendLocal("With a relentless determination, the voracious plants worked their way through your clothing, tearing and ripping as they sought a path to ensnare your vulnerable flesh.");
-                break;
-            case 1:
-                ChatRoomSendLocal("The plant's tendrils, like miniature saws, sliced through your attire, leaving tattered shreds in their wake as they made their way towards your skin.");
-                break;
-            case 2:
-                ChatRoomSendLocal("As the plant invasion intensified, your clothes became a casualty, shredded by the relentless force of nature's encroachment.");
-                break;
-            case 3:
-                ChatRoomSendLocal("The invasive plants, fueled by an insatiable hunger, tore at your garments, exposing your skin to their invasive advance.");
-                break;
-            case 4:
-                ChatRoomSendLocal("Inexorably, the plant's tendrils shredded your clothing, revealing the helplessness of your situation as they reached for you with unyielding determination.");
-                break;
-            default:
-                break;
-        }
-        if (!CharacterIsNaked(Player)) {
-            breakRandomClothes(Player);
-        } else {
-
-        }
-    }
-    if (level > 250) {
-        stopEvent();
-    }
-    */
 }
 
 function getRandomClothingBreakPrompt() {
@@ -178,8 +169,9 @@ function getRandomClothingBreakPrompt() {
 
 function breakClothesForPlayer() {
     const randomPrompt = getRandomClothingBreakPrompt();
-    ChatRoomSendLocal(randomPrompt);
-    breakRandomClothes(Player);
+    if (breakRandomClothes(Player)) {
+        ChatRoomSendLocal(randomPrompt);
+    }
 }
 
 function selectRandomBindForPlayer() {
@@ -201,3 +193,110 @@ function selectRandomBindForPlayer() {
         return null; // No hay elementos que no tengan el valor 0
     }
 }
+
+function createBar() {
+    const barPercentage = (eventLevel / 6) * 100;
+
+    const eventLevelBar = document.createElement('div');
+    eventLevelBar.classList.add('maxLevel-bar');
+    eventLevelBar.style.width = "200px";
+    eventLevelBar.style.height = "20px";
+
+    const levelFill = document.createElement('div');
+    levelFill.classList.add('eventLevel-fill');
+    levelFill.style.width = `${barPercentage}%`;
+
+    eventLevelBar.appendChild(levelFill);
+    
+    // div.appendChild(eventLevelBar);
+
+    const styles = `
+    .maxLevel-bar {
+    width: 300px;
+    background-color: #ccc;
+    border: 1px solid #000;
+    text-align: center;
+    font-size: 18px;
+    }
+    .eventLevel-fill {
+    background-color: #ea9999;
+    color: #fff;
+    height: 100%;
+    }
+    `;
+
+    const styleElement = document.createElement('style');
+    styleElement.innerHTML = styles;
+    document.head.appendChild(styleElement);
+  
+    return eventLevelBar;
+}
+
+export function ChatRoomSendLocalAction(msg, background = "#6e6eff54", sender, pelearAction, rendirseAction, autoDeleteTimeout = stepsPerSecond*1000) {
+    // Adds the message and scrolls down unless the user has scrolled up
+    const div = document.createElement("div");
+    div.setAttribute("class", "ChatMessage ChatMessageLocalMessage");
+    div.setAttribute("data-time", ChatRoomCurrentTime());
+    div.setAttribute("data-sender", `${sender ?? Player.MemberNumber ?? 0}`);
+    div.style.background = background;
+    div.style.margin = "0.15em 0";
+  
+    const messageText = typeof msg === "string" ? msg : "[AES] " + msg;
+  
+    // Create a div for the message
+    const messageDiv = document.createElement("div");
+    messageDiv.innerText = messageText;
+  
+    // Append the message div before the buttons
+    div.appendChild(messageDiv);
+  
+    eventLevelBar = createBar();
+    div.appendChild(eventLevelBar);
+  
+    const pelearButton = document.createElement("button");
+    pelearButton.classList.add("fancy-button");
+    pelearButton.innerHTML = "&#10003;"; // Checkmark icon
+    pelearButton.addEventListener("click", () => {
+      if (pelearAction) {
+        pelearAction();
+        removeMessage();
+      }
+    });
+  
+    const rendirseButton = document.createElement("button");
+    rendirseButton.classList.add("fancy-button");
+    rendirseButton.innerHTML = "&#10007;"; // Cross icon
+    rendirseButton.addEventListener("click", () => {
+      if (rendirseAction) {
+        rendirseAction();
+        removeMessage();
+      }
+    });
+  
+    div.appendChild(pelearButton);
+    div.appendChild(rendirseButton);
+  
+    // Schedule the removal of the message after the specified timeout
+    setTimeout(() => {
+        rendirseAction();
+        removeMessage();
+    }, autoDeleteTimeout);
+  
+    // Returns the focus on the chat box
+    const Refocus = document.activeElement?.id === "InputChat";
+    const ShouldScrollDown = ElementIsScrolledToEnd("TextAreaChatLog");
+    const ChatLog = document.getElementById("TextAreaChatLog");
+    if (ChatLog != null) {
+      ChatLog.appendChild(div);
+      if (ShouldScrollDown) ElementScrollToEnd("TextAreaChatLog");
+      if (Refocus) ElementFocus("InputChat");
+      return div;
+    }
+    return null;
+  
+    function removeMessage() {
+      div.remove();
+    }
+  }
+
+  
